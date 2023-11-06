@@ -1,9 +1,58 @@
 import {useState} from "react";
+import {attacks} from "./attacks";
+
+export function createData(attackLevels) {
+    const OPPONENT_LEVEL = 1.21 // level 3
+    const OPPONENT_EFFICIENCY = .8
+    return Object.keys(attacks).map(attack => {
+        const attackData = attacks[attack]
+        const level = parseInt(attackLevels[attack])
+        const points = Math.round(attackData.points / 5 * Math.pow(1.1, (level - 1))) * 5
+        const netNoOverkillPoints = Math.round(points - 100 * OPPONENT_LEVEL * OPPONENT_EFFICIENCY * attackData.damage)
+        let overkillAmount = 1
+        if (attack === 'Electric Deity') {
+            overkillAmount = 5
+        } else if (attack === 'Doomsday Quack') {
+            overkillAmount = 20
+        } else if (attack === 'Shield Buster') {
+            overkillAmount = 0
+        }
+        let itemSum = 0
+        Object.keys(attackData.ingredients).forEach(key => itemSum += attackData.ingredients[key])
+        const netOverkillPoints = Math.round(points - 100 * OPPONENT_LEVEL * OPPONENT_EFFICIENCY * overkillAmount)
+        let overkillWeight = netOverkillPoints / (netOverkillPoints + netNoOverkillPoints) * (attackData.damage - overkillAmount) / 16
+        if (attack === 'Shield Buster') {
+            overkillWeight = netNoOverkillPoints / (netOverkillPoints + netNoOverkillPoints) * 6 / 16
+        } else if (attack === 'Electric Deity') {
+            overkillWeight = .02
+        }
+        const blended = Math.round(netNoOverkillPoints * (1 - overkillWeight) + netOverkillPoints * overkillWeight)
+        if (level > 0) {
+            return {
+                attack: attack,
+                level: level,
+                points: points,
+                ingredients: attackData.ingredients,
+                netNoOverkillPoints: netNoOverkillPoints,
+                netOverkillPoints: netOverkillPoints,
+                blendedNet: blended,
+                netPerItem: Math.round(blended / itemSum),
+                netPerEnergy: Math.round(blended / attackData.energy),
+                rawPerItem: Math.round(points / itemSum),
+                rawPerEnergy: Math.round(points / attackData.energy)
+            }
+        } else {
+            return {
+                attack: attack
+            }
+        }
+    })
+}
 
 function AttackTable(props) {
     const [sortField, setSortField] = useState('attack')
+    let visualData = createData(props.player)
 
-    let visualData = [...props.data]
     visualData.sort((a, b) => {
         const aValue = a[sortField]
         const bValue = b[sortField]
@@ -51,7 +100,7 @@ function AttackTable(props) {
         <tbody>
         {visualData.map(row => {
             if (row.level > 0) {
-                return <tr>
+                return <tr key={row.attack}>
                     <td>{row.attack}</td>
                     <td>{row.level}</td>
                     <td>{row.points}</td>
