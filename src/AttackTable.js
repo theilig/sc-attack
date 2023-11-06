@@ -100,7 +100,7 @@ function AttackTable(props) {
         <tbody>
         {visualData.map(row => {
             if (row.level > 0) {
-                return <tr key={row.attack}>
+                return <tr key={row.attack} onClick={() => props.update(row.attack, false)} onContextMenu={() => props.update(row.attack, true)}>
                     <td>{row.attack}</td>
                     <td>{row.level}</td>
                     <td>{row.points}</td>
@@ -113,7 +113,7 @@ function AttackTable(props) {
                     <td>{row.rawPerEnergy}</td>
                 </tr>
             } else {
-                return <tr>
+                return <tr key={row.attack}>
                     <td>{row.attack}</td>
                 </tr>
             }

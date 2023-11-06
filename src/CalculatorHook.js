@@ -96,7 +96,7 @@ export function useCalculator() {
             if (value > 0) {
                 netTotal += value * attacksData[index].blendedNet
                 rawTotal += value * attacksData[index].points
-                text.push(attacksData[index].attack + ': ' + value)
+                text.push({attack: attacksData[index].attack, value: value})
             }
         })
         if (currentBest.netTotal === undefined || netTotal > currentBest.netTotal.netValue) {
@@ -138,8 +138,27 @@ export function useCalculator() {
         setGuarantees(currentGuarantees)
         setBestSoFar(currentBest)
 
+        let evaluatedTotal = 1
+        let evaluatedCount = 1
+        let evaluatedIndex = 0
+        currentGuarantees.forEach((value, index) => {
+            if (value > 0) {
+                evaluatedIndex = index
+            }
+        })
+        possibleCounts.forEach((value, index) => {
+            const possibleCount = (value || 0)
+            evaluatedTotal *= possibleCount + 1
+            if (index < evaluatedIndex) {
+                evaluatedCount *= possibleCount + 1
+            } else if (index === evaluatedIndex) {
+                evaluatedCount *= (currentGuarantees[index] || 0) + 1
+            }
+        })
         return {
-            currentBest
+            currentBest,
+            evaluatedCount,
+            evaluatedTotal
         }
     }
     return {

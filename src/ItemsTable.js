@@ -36,7 +36,7 @@ function ItemsTable(props) {
 
     return <div style={{display: 'flex'}}>
         {items.map(item => {
-            return <div style={{marginRight: '5px'}} onClick={() => goodWasClicked(item, false)} onContextMenu={() => goodWasClicked(item, true)}>{item} {adjustments[item] || 0}</div>
+            return <div key={item} style={{marginRight: '5px'}} onClick={() => goodWasClicked(item, false)} onContextMenu={() => goodWasClicked(item, true)}>{item} {adjustments[item] || 0}</div>
         })}
     </div>
 
