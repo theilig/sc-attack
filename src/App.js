@@ -51,7 +51,7 @@ function App() {
             }
         }, 100)
         return () => clearInterval(interval)
-    }, [current, findBest, itemCounts, updatedMembers])
+    }, [current, findBest, itemCounts, updatedMembers, evaluated])
     return (
         <div className="App" style={{color: 'white', backgroundColor: 'lightsteelblue'}}>
             Team Watermelon War Attacks
