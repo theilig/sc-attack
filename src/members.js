@@ -107,8 +107,8 @@ export const members = {
         'Comic Hand': 5,
         'Shrink Ray': 3,
         'Giant Rock Monster': 1,
-        'Not in Kansas': 1,
-        'Magnetism': 4,
+        'Not in Kansas': 2,
+        'Magnetism': 5,
         'Tentacle Vortex': 3,
         'Flying Vu Robot': null,
         'Disco Twister': null,
@@ -120,14 +120,14 @@ export const members = {
         '16 Tons': 2,
         'Spiders': 1,
         'Dance Shoes': 1,
-        'Building Portal': 2,
+        'Building Portal': 3,
         'B Movie Monster': 1,
         'Hissy Fit': 2,
         'Mellow Bellow': 5,
         'Doomsday Quack': null,
         'Electric Deity': 2,
         'Shield Buster': 3,
-        'Zest from Above': 3
+        'Zest from Above': 4
     },
     'tio': {
         'Comic Hand': 6,

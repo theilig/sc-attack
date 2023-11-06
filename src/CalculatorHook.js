@@ -53,7 +53,7 @@ export function useCalculator() {
         if (currentGuaranteeUpdated === undefined) {
             return
         }
-        currentGuarantees[currentGuaranteeUpdated] = (currentEvaluated[currentGuaranteeUpdated] || 0) + 1
+        currentGuarantees[currentGuaranteeUpdated] = (currentGuarantees[currentGuaranteeUpdated] || 0) + 1
 
         for (let i = 0; i < currentGuaranteeUpdated; i += 1) {
             // reset the lower indexes to start over with this new guarantee
@@ -100,10 +100,10 @@ export function useCalculator() {
             }
         })
         if (currentBest.netTotal === undefined || netTotal > currentBest.netTotal.netValue) {
-            currentBest.netTotal = {netValue: netTotal, attackSet: currentEvaluated, text: text.join(', '), rawValue: rawTotal}
+            currentBest.netTotal = {netValue: netTotal, attackSet: currentEvaluated, text: text, rawValue: rawTotal}
         }
         if (currentBest.rawTotal === undefined || rawTotal > currentBest.rawTotal.rawValue) {
-            currentBest.rawTotal = {netValue: netTotal, attackSet: currentEvaluated, text: text.join(', '), rawValue: rawTotal}
+            currentBest.rawTotal = {netValue: netTotal, attackSet: currentEvaluated, text: text, rawValue: rawTotal}
         }
     }
 
