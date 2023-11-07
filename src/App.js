@@ -45,7 +45,7 @@ function App() {
             const attackData = createData(updatedMembers[current])
             const result = findBest(attackData, itemCounts)
             setBest(result.currentBest)
-            const newEvaluated = Math.floor(result.evaluatedCount * 100 / result.evaluatedTotal)
+            const newEvaluated = Math.floor(result.evaluatedCount * 10000 / result.evaluatedTotal) / 100
             if (newEvaluated !== evaluated) {
                 setEvaluated(newEvaluated)
             }

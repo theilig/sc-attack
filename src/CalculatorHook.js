@@ -32,17 +32,28 @@ export function useCalculator() {
             for (let i = attacksData.length - 1; i >= 0; i -= 1) {
                 let canUpdate = true;
                 const data = attacksData[i]
+                let netCost = 0
+                let rawCost = 0
                 if (data.ingredients) {
                     Object.keys(data.ingredients).forEach(ingredient => {
                         localItems[ingredient] = (localItems[ingredient] || 0) - data.ingredients[ingredient] * (currentGuarantees[i] || 0)
                         if (localItems[ingredient] < data.ingredients[ingredient]) {
                             canUpdate = false
                         }
+                        if (currentBest.netTotal) {
+                            netCost += Math.max(0, data.ingredients[ingredient] - (currentBest.netTotal.remaining[ingredient] || 0)) * (currentBest.netTotal.cost[ingredient] || 0)
+                        }
+                        if (currentBest.rawTotal) {
+                            rawCost += Math.max(0, data.ingredients[ingredient] - (currentBest.rawTotal.remaining[ingredient] || 0)) * (currentBest.rawTotal.cost[ingredient] || 0)
+                        }
                     })
+                    netCost -= data.blendedNet
+                    rawCost -= data.points
                 } else {
                     canUpdate = false
                 }
-                if (canUpdate) {
+
+                if (canUpdate && (netCost < 0 || rawCost < 0)) {
                     indexToUpdate = i
                 }
             }
@@ -54,6 +65,13 @@ export function useCalculator() {
             return
         }
         currentGuarantees[currentGuaranteeUpdated] = (currentGuarantees[currentGuaranteeUpdated] || 0) + 1
+        if (currentBest.netTotal && currentBest.netTotal.attackSet[currentGuaranteeUpdated] > currentGuarantees[currentGuaranteeUpdated]) {
+            currentGuarantees[currentGuaranteeUpdated] = currentBest.netTotal.attackSet[currentGuaranteeUpdated]
+        }
+
+        if (currentBest.rawTotal && currentBest.rawTotal.attackSet[currentGuaranteeUpdated] > currentGuarantees[currentGuaranteeUpdated]) {
+            currentGuarantees[currentGuaranteeUpdated] = currentBest.rawTotal.attackSet[currentGuaranteeUpdated]
+        }
 
         for (let i = 0; i < currentGuaranteeUpdated; i += 1) {
             // reset the lower indexes to start over with this new guarantee
@@ -92,18 +110,29 @@ export function useCalculator() {
         let netTotal = 0
         let rawTotal = 0
         let text = []
+        let lowestNet = {}
+        let lowestRaw = {}
         currentEvaluated.forEach((value, index) => {
             if (value > 0) {
-                netTotal += value * attacksData[index].blendedNet
-                rawTotal += value * attacksData[index].points
+                const data = attacksData[index]
+                netTotal += value * data.blendedNet
+                rawTotal += value * data.points
+                Object.keys(data.ingredients).forEach(ingredient => {
+                    if (lowestNet[ingredient] === undefined || lowestNet[ingredient] > attacksData[index].netPerItem) {
+                        lowestNet[ingredient] = attacksData[index].netPerItem
+                    }
+                    if (lowestRaw[ingredient] === undefined || lowestRaw[ingredient] > attacksData[index].rawPerItem) {
+                        lowestRaw[ingredient] = attacksData[index].rawPerItem
+                    }
+                })
                 text.push({attack: attacksData[index].attack, value: value})
             }
         })
         if (currentBest.netTotal === undefined || netTotal > currentBest.netTotal.netValue) {
-            currentBest.netTotal = {netValue: netTotal, attackSet: currentEvaluated, text: text, rawValue: rawTotal}
+            currentBest.netTotal = {netValue: netTotal, attackSet: currentEvaluated, text: text, rawValue: rawTotal, remaining: {...currentItemCounts}, cost: lowestNet}
         }
         if (currentBest.rawTotal === undefined || rawTotal > currentBest.rawTotal.rawValue) {
-            currentBest.rawTotal = {netValue: netTotal, attackSet: currentEvaluated, text: text, rawValue: rawTotal}
+            currentBest.rawTotal = {netValue: netTotal, attackSet: currentEvaluated, text: text, rawValue: rawTotal, remaining: {...currentItemCounts}, cost: lowestRaw}
         }
     }
 
