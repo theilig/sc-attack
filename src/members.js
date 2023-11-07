@@ -122,7 +122,7 @@ export const members = {
         'Dance Shoes': 1,
         'Building Portal': 3,
         'B Movie Monster': 1,
-        'Hissy Fit': 2,
+        'Hissy Fit': 3,
         'Mellow Bellow': 5,
         'Doomsday Quack': null,
         'Electric Deity': 2,

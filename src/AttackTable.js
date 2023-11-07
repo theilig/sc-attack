@@ -39,7 +39,8 @@ export function createData(attackLevels) {
                 netPerItem: Math.round(blended / itemSum),
                 netPerEnergy: Math.round(blended / attackData.energy),
                 rawPerItem: Math.round(points / itemSum),
-                rawPerEnergy: Math.round(points / attackData.energy)
+                rawPerEnergy: Math.round(points / attackData.energy),
+                best: []
             }
         } else {
             return {
@@ -70,6 +71,19 @@ function AttackTable(props) {
             return 1
         }
     })
+    let bestList = {}
+    if (sortField === 'rawPerItem' || sortField === 'netPerItem') {
+        visualData.forEach(attack => {
+            if (attack.ingredients) {
+                Object.keys(attack.ingredients).forEach(ingredient => {
+                    if (bestList[ingredient] === undefined) {
+                        bestList[ingredient] = attack.attack
+                        attack.best.push(ingredient)
+                    }
+                })
+            }
+        })
+    }
     return <table>
         <thead>
             <tr>
@@ -111,6 +125,7 @@ function AttackTable(props) {
                     <td>{row.netPerEnergy}</td>
                     <td>{row.rawPerItem}</td>
                     <td>{row.rawPerEnergy}</td>
+                    <td>{row.best.join(", ")}</td>
                 </tr>
             } else {
                 return <tr key={row.attack}>
