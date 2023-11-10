@@ -17,6 +17,7 @@ function App() {
     const [best, setBest] = useState({})
     const [updatedMembers, setUpdatedMembers] = useState(members)
     const [evaluated, setEvaluated] = useState(0)
+    const [maxNeeded, setMaxNeeded] = useState({})
     const {
         findBest,
         startOver
@@ -49,6 +50,28 @@ function App() {
             if (newEvaluated !== evaluated) {
                 setEvaluated(newEvaluated)
             }
+            let neededNet = []
+            let neededRaw = []
+            attackData.forEach((attack, index) => {
+                if (result.currentBest && result.currentBest.netTotal) {
+                    if (result.currentBest.netTotal.attackSet[index] > 0) {
+                        Object.keys(attack.ingredients).forEach(ingredient => {
+                            neededNet[ingredient] = (neededNet[ingredient] || 0) + attack.ingredients[ingredient] * result.currentBest.netTotal.attackSet[index]
+                        })
+                    }
+                }
+                if (result.currentBest && result.currentBest.rawTotal) {
+                    if (result.currentBest.rawTotal.attackSet[index] > 0) {
+                        Object.keys(attack.ingredients).forEach(ingredient => {
+                            neededRaw[ingredient] = (neededRaw[ingredient] || 0) + attack.ingredients[ingredient] * result.currentBest.rawTotal.attackSet[index]
+                        })
+                    }
+                }
+            })
+            Object.keys(neededRaw).forEach((key) => {
+                neededNet[key] = Math.max(neededNet[key] || 0, neededRaw[key])
+            })
+            setMaxNeeded(neededNet)
         }, 100)
         return () => clearInterval(interval)
     }, [current, findBest, itemCounts, updatedMembers, evaluated])
@@ -59,7 +82,7 @@ function App() {
                 setCurrent(e.value)
                 startOver()
             }}/>
-            <ItemsTable updateCounts={(counts) => {updateItemCounts(counts)}}/>
+            <ItemsTable updateCounts={(counts) => {updateItemCounts(counts)}} maxNeeded={maxNeeded}/>
             <div style={{marginTop: '10px'}}>Close Match:</div>
             <div>{best && best.netTotal && (best.netTotal.rawValue + ' points (net ' + best.netTotal.netValue + ')')}</div>
             <div style={{display: "flex"}}>
