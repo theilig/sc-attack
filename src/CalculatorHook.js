@@ -130,7 +130,7 @@ export function useCalculator() {
             setLastEvaluated(undefined)
         }
 
-        let evaluatedTotal = 10
+        let evaluatedTotal = Math.max(10, depth)
         let evaluatedCount = depth
         return {
             currentBest,
