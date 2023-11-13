@@ -55,48 +55,49 @@ export function useCalculator() {
         }
     }
 
+    const getAllCombos = (attacks, counts, index, whereWeLeftOff, localDepth) => {
+        let allCombos = []
+        if (index >= attacks.length) {
+            return [""]
+        }
+        let localLeftOff;
+        let alreadySeen = []
+        let startingPoint = maxAvailable(attacks[index], counts)
+        if (whereWeLeftOff) {
+            let leftOffIndex = whereWeLeftOff.split(":")
+            startingPoint = parseInt(leftOffIndex[0])
+            leftOffIndex.splice(0, 1)
+            localLeftOff = leftOffIndex.join(":")
+            alreadySeen[localLeftOff] = true
+        }
+        let endingIndex = 0
+        if (localDepth <= 0) {
+            endingIndex = startingPoint
+        }
+        for (let i = startingPoint; i >= endingIndex && allCombos.length < 1000; i -= 1) {
+            let localCounts = {...counts}
+            removeItems(localCounts, attacks[index], i)
+            getAllCombos(attacks, localCounts, index + 1, localLeftOff, localDepth - 1).forEach(possible => {
+                if (alreadySeen[possible] === undefined) {
+                    alreadySeen[possible] = true
+                    allCombos.push("" + i + ":" + possible)
+                }
+            })
+            localLeftOff = undefined
+        }
+        return allCombos
+    }
+
+    const removeItems = (items, attackData, count) => {
+        if (attackData.ingredients) {
+            Object.keys(attackData.ingredients).forEach(ingredient => {
+                items[ingredient] -= attackData.ingredients[ingredient] * count
+            })
+        }
+    }
+
     const findBest = (attacksData, itemCounts) => {
         let possibleCounts = []
-        const removeItems = (items, attackData, count) => {
-            if (attackData.ingredients) {
-                Object.keys(attackData.ingredients).forEach(ingredient => {
-                    items[ingredient] -= attackData.ingredients[ingredient] * count
-                })
-            }
-        }
-        const getAllCombos = (attacks, counts, index, whereWeLeftOff, localDepth) => {
-            let allCombos = []
-            if (index >= attacks.length) {
-                return [""]
-            }
-            let localLeftOff;
-            let alreadySeen = []
-            let startingPoint = maxAvailable(attacks[index], counts)
-            if (whereWeLeftOff) {
-                let leftOffIndex = whereWeLeftOff.split(":")
-                startingPoint = parseInt(leftOffIndex[0])
-                leftOffIndex.splice(0, 1)
-                localLeftOff = leftOffIndex.join(":")
-                alreadySeen[localLeftOff] = true
-            }
-            let endingIndex = 0
-            if (localDepth <= 0) {
-                endingIndex = startingPoint
-            }
-            for (let i = startingPoint; i >= endingIndex && allCombos.length < 1000; i -= 1) {
-                let localCounts = {...counts}
-                removeItems(localCounts, attacks[index], i)
-                getAllCombos(attacks, localCounts, index + 1, localLeftOff, localDepth - 1).forEach(possible => {
-                    if (alreadySeen[possible] === undefined) {
-                        alreadySeen[possible] = true
-                        allCombos.push("" + i + ":" + possible)
-                    }
-                })
-                localLeftOff = undefined
-            }
-            return allCombos
-        }
-
         // Sorting just to make sure keys are always in the same order, they shouldn't change but just making sure
         attacksData.sort((a, b) => {
             if (a.blendedNet && b.blendedNet) {
