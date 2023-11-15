@@ -123,7 +123,7 @@ export function useCalculator() {
         }
         if (possibleCombos.length === 0 && depth < 10) {
             let newDepth = depth + 1
-            while (newDepth < possibleCounts.length && possibleCounts[newDepth] === 0) {
+            while (newDepth < 10 && newDepth < possibleCounts.length && possibleCounts[newDepth] === 0) {
                 newDepth += 1
             }
             setDepth(newDepth)
