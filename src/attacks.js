@@ -229,7 +229,8 @@ export const attacks = {
         },
         energy: 6,
         damage: 6,
-        points: 700
+        points: 700,
+        boost: 4
     },
 
 }

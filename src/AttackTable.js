@@ -8,7 +8,11 @@ export function createData(attackLevels) {
         const attackData = attacks[attack]
         const level = parseInt(attackLevels[attack])
         const points = Math.round(attackData.points / 5 * Math.pow(1.1, (level - 1))) * 5
-        const netNoOverkillPoints = Math.round(points - 100 * OPPONENT_LEVEL * OPPONENT_EFFICIENCY * attackData.damage)
+        let adjustedDamage = attackData.damage
+        if (attackData.boost && level > attackData.boost) {
+            adjustedDamage += 1
+        }
+        const netNoOverkillPoints = Math.round(points - 100 * OPPONENT_LEVEL * OPPONENT_EFFICIENCY * adjustedDamage)
         let overkillAmount = 1
         if (attack === 'Electric Deity') {
             overkillAmount = 5
